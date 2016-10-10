@@ -26,6 +26,13 @@ int tempo = 2000;
 int current_tone = 0; //current playing note
 int current_tone_duration = 0; //current note duration
 
+void delay_ms(unsigned int milliseconds) {
+   while(milliseconds > 0) {
+      milliseconds--;
+       __delay_us(990);
+   }
+}
+
 void SetupClock() {
     OSCCONbits.IRCF = 0b110; //set internal oscillator to 4 Mhz
     OSCCONbits.SCS = 0b00; //use oscillator defined by FOSC
@@ -80,16 +87,8 @@ void playTone() {
     if (current_tone > 0) {
         PWM1_Init(current_tone);
         PWM1_Duty(511);
-
-        //delay_ms cannot take a variable as parameter, only constant values...
-        //these values are actually hardcoded. The formula is: tempo/all used beats
-        if (current_tone_duration == 250) {
-            __delay_ms(250);
-        } else if (current_tone_duration == 500) {
-            __delay_ms(500);
-        } else if (current_tone_duration == 1000) {
-            __delay_ms(1000);
-        }
+        
+        delay_ms(current_tone_duration);
         PWM1_Duty(0);
     }
 }
@@ -116,7 +115,7 @@ int main(int argc, char** argv) {
             current_tone_duration = tempo / beats[i];
 
             playTone();
-            __delay_ms(10);
+            delay_ms(tempo/200);
         }
         __delay_ms(2000);
     }
